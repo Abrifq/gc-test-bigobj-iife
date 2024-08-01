@@ -13,7 +13,12 @@
         const buf = new ArrayBuffer(100_000_000);
         (()=>{
           const view = Uint8Array.from(buf);
-          view.fill(0); //reference, AND MODIFY the buffer from IIFE!
+          view.fill(0b00101000 + (Math.random()> 0.5 ? 1 : 0)); 
+          //reference, AND MODIFY the buffer from IIFE! 
+          //what's the byte? it's the first 8 bytes of teh flickering code of "hl1 flicker" 
+          //https://www.alanzucconi.com/2021/06/15/valve-flickering-lights/ 
+          //why this? I needed something more random to prove myself it's really getting GC'd and not being allocated to the same place. 
+          //Also math.random goes brr. why didn't i just use that then? idk i like hl1 flicker
         })();
         globalThis.innerToo = ()=>{console.log("hmm, weird, huh?");};
       }
