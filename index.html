@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <!-- i couldn't care less about the lack of the style. -->
+    <title> is it a GC problem or are you just running it once only? </title>
+    <script>
+      function demo(){ //the original
+        const buf = new ArrayBuffer(100_000_000);
+        (()=>{console.log(buf.byteLength);})();
+        globalThis.innerFunc=()=>{console.log("hello");};
+      }
+      function demoToo(){ //my modification
+        const buf = new ArrayBuffer(100_000_000);
+        (()=>{
+          const view = Uint8Array.from(buf);
+          view.fill(0); //reference, AND MODIFY the buffer from IIFE!
+        })();
+        globalThis.innerToo = ()=>{console.log("hmm, weird, huh?");};
+      }
+      function loopDemo(){ for(var i = 0; i<1000; i++) demo();}
+      function loopDemoToo(){ for(var i = 0; i<1000;i++) demoToo();}
+    </script>
+  </head>
+  <body>
+    <h1> Do you even GC bro?</h1>
+    <p> i added a simple button to run the demo a thousand times, because if it leaks as you claim, it should claim way more memory than it needs to.
+      let's see if it REALLY leaks, or if you are just having the memory snapshot before GC gets triggered.
+    </p>
+    <span>
+      <button onclick="demo()"> Run <code>demo</code> once </button>
+      <button onclick="loopDemo()"> Run <code>demo</code> 1000 times</button>
+    </span>
+    <br/><br/>
+      <p>I also made a version that <a href="https://stackoverflow.com/a/19991656"><em>should</em> not just request the memory from OS, but actually claim it too.</a></p>
+    <span>
+      <button onclick="demoToo()"> Run <code>demoToo</code> once </button>
+      <button onclick="loopDemoToo()"> Run <code>demoToo</code> 1000 times</button>
+    </span>
+    <hr>
+    <h3> If you can, get a memory graph and see if it actually gets GC'd, how much does there need to be if it needs to be GC'd, etc, with your system specs. More info doesn't hurt.</h3>
+  </body>
+</html>
